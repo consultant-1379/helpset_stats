@@ -1,0 +1,82 @@
+<project name="helpset_stats" default="compile" xmlns:sonar="antlib:org.sonar.ant">
+
+        <property name="pack.name" value="helpset_stats"/>
+        <property name="pack.version" value="1-0-0"/>
+        <property name="pack.dir" value="/proj/eiffel013_config_fem6s11/eiffel_home/jobs/Git_helpset_stats_build/helpset_stats/dev"/>
+
+        <target name="precompile"/>
+
+        <target name="compile" depends="create_war"/>
+
+        <target name="create_war">
+                <war destfile="${pack.dir}/install/helpset_stats.war" needxmlfile="false">
+                        <fileset dir="${pack.dir}/src"/>
+                </war>
+        </target>
+
+        <target name="postcompile"/>
+
+		<target name="report"/>
+		<target name="clean"/>
+    <!-- ========= Define the main properties of this project ========= -->
+    <property name="src.dir" value="src" />
+    <property name="build.dir" value="target" />
+    <property name="classes.dir" value="${build.dir}/classes" />
+
+    <!-- Define the SonarQube global properties (the most usual way is to pass these properties via the command line) -->
+    <property name="sonar.host.url" value="https://sonarqube.lmera.ericsson.se" />
+
+    <!-- Define the Sonar properties -->
+    <property name="sonar.projectKey" value="sonarqube-scanner-helpset_stats" />
+    <property name="sonar.projectName" value="Eniq Helpset_stats" />
+    <property name="sonar.projectVersion" value="1.0" />
+    <property name="sonar.sources" value="/proj/eiffel013_config_fem6s11/eiffel_home/jobs/Git_helpset_stats_build/helpset_stats/dev/src" />
+    <property name="sonar.java.binaries" value="/proj/eiffel013_config_fem6s11/eiffel_home/jobs/Git_helpset_stats_build/helpset_stats/dev" />
+    <property name="sonar.sourceEncoding" value="UTF-8" />
+    <property name="sonar.login" value="b140730794b2b53dc841840498358c11213d3ba9" />
+    <property name="sonar.projectBaseDir" value="/proj/eiffel013_config_fem6s11/eiffel_home/jobs/Git_helpset_stats_build/helpset_stats/dev" />
+
+	<target name="compile_sonar"/>
+    <!-- ========= Define SonarQube Scanner for Ant Target ========= -->
+    <target name="sonar">
+        <taskdef uri="antlib:org.sonar.ant" resource="org/sonar/ant/antlib.xml">
+            <!-- Update the following line, or put the "sonar-ant-task-*.jar" file in your "$HOME/.ant/lib" folder -->
+            <classpath path="/proj/esjkadm100/Sonar/sonarqube-ant-task-2.7.0.1612.jar" />
+        </taskdef>
+
+        <!-- Execute SonarQube Scanner for Ant Analysis -->
+        <sonar:sonar />
+    </target>
+
+    <!-- ========= The main target "all" ========= -->
+    <target name="all_sonar" depends="sonar" />
+
+
+
+<target name="sonarQualityCheck" description="SonarQube Quality Gate check"> 
+	 <exec executable="/bin/sh" outputproperty="qualitySleep"> 
+		 <arg value="-c" /> 
+		 <arg value="sleep 60" /> 
+	 </exec>
+	<exec executable="curl" outputproperty="sonarreturnCode">
+		<arg value="-o" />
+		<arg value="/proj/esjkadm100/Sonar/sonarOut.txt" />
+		<arg value="-k" />
+        <arg value="-u" />
+        <arg value="${sonar.login}:" />
+        <arg value="https://sonarqube.lmera.ericsson.se/api/qualitygates/project_status?projectKey=${sonar.projectKey}" />
+    </exec>
+    <exec executable="/bin/sh" outputproperty="sonarCode">
+        <arg value="-c" />
+        <arg value="/proj/eiffel013_config_fem6s11/tools/sonarQualityGateCheck.sh ${jobname}" />
+    </exec>
+    <echo message="Quality report returned ${sonarCode}"/>
+    <condition property="qualityMatch">
+        
+            <equals arg1="${sonarCode}" arg2="ERROR"/>
+        
+    </condition>
+    <fail if="qualityMatch" message="Quality check did not pass, hence marking build as failed!!!."/>
+</target>
+
+</project>
